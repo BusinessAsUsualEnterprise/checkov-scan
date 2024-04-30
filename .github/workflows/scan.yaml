@@ -71,12 +71,13 @@ jobs:
 
       - name: Install checkov
         run: |
-          repo=$(git config --get remote.origin.url)
-          checkov --branch "${{ github.head_ref || github.ref_name }}" --repo-id "$repo" --docker-image "${{ env.IMAGE_NAME }}" --dockerfile-path "$DOCKERFILE" --output cli --output sarif --output-file-path console,results.sarif --use-enforcement-rules
+          checkov --branch "${BRANCH_NAME}" --repo-id "${REPOSITORY}" --docker-image "${{ env.IMAGE_NAME }}" --dockerfile-path "${DOCKERFILE}" --output cli --output sarif --output-file-path console,results.sarif --use-enforcement-rules
         env:
           BC_API_KEY: ${{ secrets.PC_ACCESS_KEY }}::${{ secrets.PC_SECRET_KEY }}
           PRISMA_API_URL: ${{ vars.PRISMA_API_URL }}
           DOCKERFILE: "Dockerfile"
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+          REPOSITORY: ${{ github.repository }}
 
       - name: Upload SARIF report
         uses: actions/upload-artifact@v2
