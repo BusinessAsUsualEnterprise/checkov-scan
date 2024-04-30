@@ -83,5 +83,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: SARIF results image scan
+          name: SARIF results image scan checkovcli
           path: results.sarif
