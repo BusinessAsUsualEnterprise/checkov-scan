@@ -11,7 +11,7 @@ env:
 
 jobs:
   build-and-scan-image-checkov-action:
-    name: Checkov Build & scan image
+    name: Checkov GitHub Action Build & scan image
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -52,7 +52,7 @@ jobs:
           path: results.sarif
 
   build-and-scan-image-checkov-plain:
-    name: Checkov Build & scan image
+    name: Checkov CLI Build & scan image
     runs-on: ubuntu-latest
     permissions:
       actions: read
