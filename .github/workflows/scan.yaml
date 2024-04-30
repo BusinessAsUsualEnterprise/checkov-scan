@@ -51,7 +51,7 @@ jobs:
           name: SARIF results image scan
           path: results.sarif
 
-build-and-scan-image-checkov-plain:
+  build-and-scan-image-checkov-plain:
     name: Checkov Build & scan image
     runs-on: ubuntu-latest
     permissions:
