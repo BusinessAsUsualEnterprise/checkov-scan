@@ -40,7 +40,7 @@ jobs:
 
           # Enforcement rules
           use_enforcement_rules: true
-          check: "BC_CVE*"
+          skip_check: "BC_LIC_1,BC_LIC_2"
 
           output_format: cli,sarif
           output_file_path: console,results.sarif
