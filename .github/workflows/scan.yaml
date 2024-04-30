@@ -1,0 +1,53 @@
+name: Checkov Image scan
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: demo:latest
+
+jobs:
+  build-and-scan-image-checkov:
+    name: Checkov Build & scan image
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write  # For SARIF
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Build the image
+        run: docker build -t $IMAGE_NAME .
+
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          quiet: false # optional: display only failed checks
+          # soft_fail: true # optional: do not return an error code if there are failed checks
+          docker_image: ${{ env.IMAGE_NAME }}
+          dockerfile_path: "Dockerfile"
+
+          # API Config
+          api-key: ${{ secrets.PC_ACCESS_KEY }}::${{ secrets.PC_SECRET_KEY }}
+          prisma-api-url: ${{ vars.PRISMA_API_URL }}
+
+          # Enforcement rules
+          use_enforcement_rules: true
+          check: "BC_CVE*"
+
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+
+      - name: Upload SARIF report
+        uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: SARIF results image scan
+          path: results.sarif
