@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: demo:latest
 
 jobs:
-  build-and-scan-image-checkov:
+  build-and-scan-image-checkov-action:
     name: Checkov Build & scan image
     runs-on: ubuntu-latest
     permissions:
@@ -40,10 +40,43 @@ jobs:
 
           # Enforcement rules
           use_enforcement_rules: true
-          skip_check: "BC_LIC_1,BC_LIC_2"
 
           output_format: cli,sarif
           output_file_path: console,results.sarif
+
+      - name: Upload SARIF report
+        uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: SARIF results image scan
+          path: results.sarif
+
+build-and-scan-image-checkov-plain:
+    name: Checkov Build & scan image
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write  # For SARIF
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Build the image
+        run: docker build -t $IMAGE_NAME .
+
+      - name: Install checkov
+        run: pip3 install checkov
+
+      - name: Install checkov
+        run: |
+          repo=$(git config --get remote.origin.url)
+          checkov --branch "${{ github.head_ref || github.ref_name }}" --repo-id "$repo" --docker-image "${{ env.IMAGE_NAME }}" --dockerfile-path "$DOCKERFILE" --output cli --output sarif --output-file-path console,results.sarif --use-enforcement-rules
+        env:
+          BC_API_KEY: ${{ secrets.PC_ACCESS_KEY }}::${{ secrets.PC_SECRET_KEY }}
+          PRISMA_API_URL: ${{ vars.PRISMA_API_URL }}
+          DOCKERFILE: "Dockerfile"
 
       - name: Upload SARIF report
         uses: actions/upload-artifact@v2
